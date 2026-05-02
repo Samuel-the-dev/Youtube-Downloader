@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Files - YT Downloader</title>
+   <style>
+      :root {
+         --bg: #0f1117;
+         --surface: #1a1d27;
+         --text: #e0e0e0;
+         --accent: #6c63ff;
+         --border-radius: 16px;
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+         font-family: 'Inter', system-ui, -apple-system, sans-serif;
+         background: var(--bg);
+         color: var(--text);
+         min-height: 100vh;
+         padding: 2rem;
+         display: flex;
+         justify-content: center;
+      }
+
+      .container {
+         width: 100%;
+         max-width: 700px;
+      }
+
+      .card {
+         background: var(--surface);
+         border-radius: var(--border-radius);
+         padding: 2rem;
+         box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      }
+
+      h1 {
+         font-size: 1.8rem;
+         margin-bottom: 0.5rem;
+         color: #a78bfa;
+      }
+      .subtitle {
+         color: #9ca3af;
+         margin-bottom: 1.5rem;
+         font-size: 0.9rem;
+      }
+
+      .flash {
+         padding: 0.8rem 1rem;
+         border-radius: 10px;
+         margin-bottom: 1.2rem;
+         font-size: 0.9rem;
+         animation: slideIn 0.3s ease;
+      }
+      .flash.success {
+         background: rgba(56,176,0,0.15); color: #6fdc6f;
+         border: 1px solid rgba(56,176,0,0.3);
+      }
+      @keyframes slideIn {
+         from { opacity: 0; transform: translateY(-10px); }
+         to { opacity: 1; transform: translateY(0); }
+      }
+
+      .file-table {
+         width: 100%;
+         border-collapse: separate;
+         border-spacing: 0 8px;
+      }
+      .file-table th {
+         text-align: left;
+         color: #9ca3af;
+         font-weight: 600;
+         font-size: 0.8rem;
+         text-transform: uppercase;
+         letter-spacing: 0.5px;
+         padding: 0 0.75rem 0.3rem;
+      }
+      .file-table td {
+         background: #252834;
+         padding: 0.8rem 0.75rem;
+         border-radius: 10px;
+         font-size: 0.95rem;
+      }
+      .file-table tr td:first-child { border-radius: 10px 0 0 10px; }
+      .file-table tr td:last-child { border-radius: 0 10px 10px 0; }
+
+      .file-table a {
+         color: var(--accent);
+         text-decoration: none;
+         font-weight: 600;
+         transition: color 0.2s;
+      }
+      .file-table a:hover { color: #a78bfa; }
+
+      .empty-state {
+         text-align: center;
+         padding: 3rem 1rem;
+         color: #6b7280;
+      }
+      .empty-state p { margin-top: 0.5rem; }
+
+      .back-link {
+         display: inline-block;
+         margin-top: 1.5rem;
+         color: var(--accent);
+         text-decoration: none;
+         font-weight: 500;
+         transition: color 0.2s;
+      }
+      .back-link:hover { color: #a78bfa; }
+   </style>
+</head>
+<body>
+   <div class="container">
+      <div class="card">
+         <h1>📂 Files on Server</h1>
+         <p class="subtitle">Files are automatically deleted after 1 hour. Click to download to your device.</p>
+
+         {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+               {% for category, message in messages %}
+               <div class="flash {{ category }}">{{ message }}</div>
+               {% endfor %}
+            {% endif %}
+         {% endwith %}
+
+         {% if files %}
+         <table class="file-table">
+               <thead>
+                  <tr>
+                     <th>File</th>
+                     <th>Size</th>
+                     <th></th>
+                  </tr>
+               </thead>
+               <tbody>
+                  {% for file in files %}
+                  <tr>
+                     <td style="word-break: break-word;">{{ file.name }}</td>
+                     <td>{{ file.size }}</td>
+                     <td><a href="{{ url_for('download_existing', filename=file.name) }}">⬇️ Download</a></td>
+                  </tr>
+                  {% endfor %}
+               </tbody>
+         </table>
+         {% else %}
+         <div class="empty-state">
+               <span style="font-size: 3rem;">📭</span>
+               <p>No files yet. Download a video or playlist first.</p>
+         </div>
+         {% endif %}
+
+         <a href="{{ url_for('index') }}" class="back-link">← Back to downloader</a>
+      </div>
+   </div>
+</body>
+</html>
