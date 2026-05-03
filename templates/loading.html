@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Downloading… – TubeFetch</title>
+    <style>
+        body {
+            background: #0b0d14;
+            color: white;
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            background: rgba(20, 22, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem 2rem;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 480px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+        }
+        h2 {
+            font-weight: 700;
+            background: linear-gradient(135deg, #c4b5fd, #7c6ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+        }
+        .progress-ring {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+        }
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 8;
+        }
+        .bg-circle {
+            stroke: rgba(255,255,255,0.1);
+        }
+        .fg-circle {
+            stroke: url(#grad);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.4s;
+        }
+        #percent {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #c4b5fd;
+        }
+        .status {
+            margin-top: 1.5rem;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+        .error {
+            color: #f87171;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>⬇️ Download in progress</h2>
+        <div class="progress-ring">
+            <svg width="120" height="120">
+                <defs>
+                    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#7c6ff7" />
+                        <stop offset="100%" stop-color="#a78bfa" />
+                    </linearGradient>
+                </defs>
+                <circle class="bg-circle" cx="60" cy="60" r="52" />
+                <circle class="fg-circle" id="progressCircle" cx="60" cy="60" r="52" stroke-dasharray="326.73" stroke-dashoffset="326.73" />
+            </svg>
+            <div id="percent">0%</div>
+        </div>
+        <div id="status" class="status">Starting…</div>
+    </div>
+    <script>
+        const taskId = "{{ task_id }}";
+        const circle = document.getElementById('progressCircle');
+        const circumference = 2 * Math.PI * 52; // 326.73
+        circle.style.strokeDasharray = circumference;
+        circle.style.strokeDashoffset = circumference;
+
+        async function checkProgress() {
+            try {
+                const resp = await fetch(`/progress/${taskId}`);
+                const data = await resp.json();
+                if (data.error) {
+                    clearInterval(timer);
+                    document.getElementById('status').innerHTML = `<span class="error">${data.error}</span>`;
+                    return;
+                }
+                const pct = data.progress;
+                document.getElementById('percent').innerText = pct + '%';
+                circle.style.strokeDashoffset = circumference - (pct / 100) * circumference;
+                document.getElementById('status').innerText = data.status === 'processing' ? 'Almost done…' : data.status;
+
+                if (data.status === 'complete') {
+                    clearInterval(timer);
+                    window.location.href = `/result/${taskId}`;
+                } else if (data.status === 'error') {
+                    clearInterval(timer);
+                    document.getElementById('status').innerHTML = `<span class="error">Error: ${data.error}</span>`;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        const timer = setInterval(checkProgress, 1000);
+    </script>
+</body>
+</html>

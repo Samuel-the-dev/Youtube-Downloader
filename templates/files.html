@@ -3,154 +3,164 @@
 <head>
    <meta charset="UTF-8">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Files - YT Downloader</title>
+   <title>Files – TubeFetch</title>
    <style>
       :root {
-         --bg: #0f1117;
-         --surface: #1a1d27;
-         --text: #e0e0e0;
-         --accent: #6c63ff;
-         --border-radius: 16px;
+         --bg: #0b0d14;
+         --surface: rgba(20, 22, 30, 0.8);
+         --text: #f1f5f9;
+         --accent: #7c6ff7;
+         --accent2: #a78bfa;
+         --muted: #94a3b8;
       }
-
       * { margin: 0; padding: 0; box-sizing: border-box; }
-
       body {
-         font-family: 'Inter', system-ui, -apple-system, sans-serif;
+         font-family: 'Inter', system-ui, sans-serif;
          background: var(--bg);
+         background-image: radial-gradient(ellipse at 50% 0%, rgba(124,111,247,0.1) 0%, transparent 70%);
          color: var(--text);
          min-height: 100vh;
          padding: 2rem;
          display: flex;
          justify-content: center;
       }
-
       .container {
          width: 100%;
-         max-width: 700px;
+         max-width: 720px;
       }
-
       .card {
+         backdrop-filter: blur(20px);
          background: var(--surface);
-         border-radius: var(--border-radius);
+         border: 1px solid rgba(255,255,255,0.1);
+         border-radius: 24px;
          padding: 2rem;
-         box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+         box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
       }
-
       h1 {
-         font-size: 1.8rem;
-         margin-bottom: 0.5rem;
-         color: #a78bfa;
+         font-size: 2rem;
+         margin-bottom: 0.3rem;
+         background: linear-gradient(135deg, #c4b5fd, #7c6ff7);
+         -webkit-background-clip: text;
+         -webkit-text-fill-color: transparent;
       }
       .subtitle {
-         color: #9ca3af;
+         color: var(--muted);
          margin-bottom: 1.5rem;
-         font-size: 0.9rem;
       }
-
       .flash {
          padding: 0.8rem 1rem;
-         border-radius: 10px;
+         border-radius: 12px;
          margin-bottom: 1.2rem;
          font-size: 0.9rem;
          animation: slideIn 0.3s ease;
       }
       .flash.success {
-         background: rgba(56,176,0,0.15); color: #6fdc6f;
+         background: rgba(56,176,0,0.15);
+         color: #86efac;
          border: 1px solid rgba(56,176,0,0.3);
+      }
+      .flash.error {
+         background: rgba(220,38,38,0.15);
+         color: #fca5a5;
+         border: 1px solid rgba(220,38,38,0.3);
       }
       @keyframes slideIn {
          from { opacity: 0; transform: translateY(-10px); }
          to { opacity: 1; transform: translateY(0); }
       }
-
-      .file-table {
-         width: 100%;
-         border-collapse: separate;
-         border-spacing: 0 8px;
+      .file-list {
+         display: flex;
+         flex-direction: column;
+         gap: 0.5rem;
       }
-      .file-table th {
-         text-align: left;
-         color: #9ca3af;
+      .file-item {
+         display: flex;
+         align-items: center;
+         justify-content: space-between;
+         background: rgba(0,0,0,0.3);
+         border-radius: 14px;
+         padding: 0.9rem 1rem;
+         transition: background 0.2s, border-color 0.2s;
+         border: 1px solid rgba(255,255,255,0.05);
+      }
+      .file-item:hover {
+         background: rgba(255,255,255,0.05);
+         border-color: rgba(255,255,255,0.15);
+      }
+      .file-name {
          font-weight: 600;
-         font-size: 0.8rem;
-         text-transform: uppercase;
-         letter-spacing: 0.5px;
-         padding: 0 0.75rem 0.3rem;
+         word-break: break-word;
+         flex: 1;
       }
-      .file-table td {
-         background: #252834;
-         padding: 0.8rem 0.75rem;
+      .file-meta {
+         display: flex;
+         align-items: center;
+         gap: 1rem;
+         color: var(--muted);
+         font-size: 0.85rem;
+         white-space: nowrap;
+      }
+      .download-btn {
+         color: white;
+         background: linear-gradient(135deg, var(--accent), var(--accent2));
+         padding: 0.4rem 1rem;
          border-radius: 10px;
-         font-size: 0.95rem;
-      }
-      .file-table tr td:first-child { border-radius: 10px 0 0 10px; }
-      .file-table tr td:last-child { border-radius: 0 10px 10px 0; }
-
-      .file-table a {
-         color: var(--accent);
          text-decoration: none;
          font-weight: 600;
-         transition: color 0.2s;
+         transition: all 0.2s;
+         box-shadow: 0 5px 15px rgba(124,111,247,0.3);
       }
-      .file-table a:hover { color: #a78bfa; }
-
+      .download-btn:hover {
+         filter: brightness(1.15);
+         box-shadow: 0 8px 20px rgba(124,111,247,0.45);
+      }
       .empty-state {
          text-align: center;
          padding: 3rem 1rem;
-         color: #6b7280;
+         color: var(--muted);
       }
-      .empty-state p { margin-top: 0.5rem; }
-
       .back-link {
          display: inline-block;
          margin-top: 1.5rem;
-         color: var(--accent);
+         color: var(--accent2);
          text-decoration: none;
          font-weight: 500;
          transition: color 0.2s;
       }
-      .back-link:hover { color: #a78bfa; }
+      .back-link:hover { color: #d8b4fe; }
    </style>
 </head>
 <body>
    <div class="container">
       <div class="card">
-         <h1>📂 Files on Server</h1>
-         <p class="subtitle">Files are automatically deleted after 1 hour. Click to download to your device.</p>
+         <h1>📂 Your Downloads</h1>
+         <p class="subtitle">Files are auto‑deleted after 1 hour. Save them to your device.</p>
 
          {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-               {% for category, message in messages %}
-               <div class="flash {{ category }}">{{ message }}</div>
-               {% endfor %}
-            {% endif %}
+               {% if messages %}
+                  {% for category, message in messages %}
+                  <div class="flash {{ category }}">{{ message }}</div>
+                  {% endfor %}
+               {% endif %}
          {% endwith %}
 
          {% if files %}
-         <table class="file-table">
-               <thead>
-                  <tr>
-                     <th>File</th>
-                     <th>Size</th>
-                     <th></th>
-                  </tr>
-               </thead>
-               <tbody>
+               <div class="file-list">
                   {% for file in files %}
-                  <tr>
-                     <td style="word-break: break-word;">{{ file.name }}</td>
-                     <td>{{ file.size }}</td>
-                     <td><a href="{{ url_for('download_existing', filename=file.name) }}">⬇️ Download</a></td>
-                  </tr>
+                  <div class="file-item">
+                     <span class="file-name">{{ file.name }}</span>
+                     <span class="file-meta">
+                           <span>{{ file.size }}</span>
+                           <a class="download-btn" href="{{ url_for('download_existing', filename=file.name) }}">⬇️</a>
+                     </span>
+                  </div>
                   {% endfor %}
-               </tbody>
-         </table>
+               </div>
          {% else %}
-         <div class="empty-state">
-               <span style="font-size: 3rem;">📭</span>
-               <p>No files yet. Download a video or playlist first.</p>
-         </div>
+               <div class="empty-state">
+                  <span style="font-size: 3rem;">📭</span>
+                  <p>No files yet. Start a download first!</p>
+               </div>
          {% endif %}
 
          <a href="{{ url_for('index') }}" class="back-link">← Back to downloader</a>
